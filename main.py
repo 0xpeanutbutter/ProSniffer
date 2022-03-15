@@ -1,24 +1,38 @@
-'''
-socket.ntohs(0x0003) captures all send and receive packets from the network
-'''
-
 import socket
-from ethernet_head import EthHead
-
-def prettify(a):
-    b = "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x" % (ord(a[0]) , ord(a[1]) , ord(a[2]), ord(a[3]), ord(a[4]) , ord(a[5]))
-    return b
+import ethernet
+import ipv4
 
 def main():
-    s = socket.socket( socket.AF_PACKET , socket.SOCK_RAW , socket.ntohs(0x0003))
+    conn = socket.socket( socket.AF_PACKET , socket.SOCK_RAW , socket.ntohs(0x0003))
     while True:
-        data = s.recvfrom(65565)
-        #recvfrom returns two values. 1 packet,2 addr
-        packet = data[0]
-        ethernet_frame = EthHead(packet)
-        destination = prettify(ethernet_frame.mac_dest())
-        source = prettify(ethernet_frame.mac_src())
-        ethertype = ethernet_frame.ether_type()
-        print(destination,source,ethertype)
+        raw_data, addr = conn.recvfrom(65536) 
+        #maximum buffer size is 65536
+        '''
+        Getting Ethernet frame and printing it
+        Using the ethertype to choose type of IP
+        '''
+        dest_mac, src_mac, ethertype, data = ethernet.ethernet_frame(raw_data)
+        # print(dest_mac,ethertype)
+        print("\n Ethernet Frame II : ")
+        print("\t Destination MAC adress {}, source MAC Address {}, Protocol : {}".format(dest_mac,src_mac,ethertype))
+        '''
+        IPv4 : 0x0800 - htohs : 8
+        IPv6 : 0x86DD - htohs : 56710
+        ARP : 0x0806
+        '''
+        # if IPv4
+        if(ethertype == 8):
+            (version,ttl,proto,src_addr,dest_addr) = ipv4.ipv4_packet(data) 
+            print("\t IPv4 Packet")
+            print("\t\t Version : {}, TTL : {}".format(version,ttl))
+            print("\t\t\t Protocol : {}, Source : {}, Destination : {}".format(proto,src_addr,dest_addr))
+            '''
+            TCP : 6
+            UDP : 17
+            ICMP : 1
+            '''
+        # if IPv4
+        elif(ethertype == 56710):
+            print("/t IPV6 Packet")
 
 main()
