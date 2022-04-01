@@ -4,7 +4,6 @@ from colorama import Fore,Style
 import ethernet
 import ipv4
 import prettifier
-
 # socket_type = 'all'
 # n = len(sys.argv)
 # if(n==2):
@@ -20,6 +19,7 @@ import prettifier
 # print(Fore.MAGENTA)
 # prettifier.logo()
 # print(Style.RESET_ALL)
+ips = [(s.connect(('8.8.8.8', 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]]
 
 def main():
     conn = socket.socket( socket.AF_PACKET , socket.SOCK_RAW , socket.ntohs(0x0003))
@@ -55,3 +55,4 @@ def main():
             print(Fore.CYAN+"/t IPV6 Packet"+Style.RESET_ALL)
         print('\n\n')
 
+main()
