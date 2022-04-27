@@ -1,0 +1,13 @@
+IPv4 : 0x0800 - htohs : 8
+IPv6 : 0x86DD - htohs : 56710
+ARP : 0x0806
+
+TCP : 6
+UDP : 17
+ICMP : 1
+
+
+
+32 - 
+32 -
+6+6

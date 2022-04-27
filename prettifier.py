@@ -1,4 +1,6 @@
+from colorama import Fore,Style
 def logo():
+    print(Fore.MAGENTA)
     print("\t\t"+'''
 
   ____                      _  __  __           
@@ -9,6 +11,7 @@ def logo():
                                                 
 
     ''')
+    print(Style.RESET_ALL)
 
 def H():
     print(20*'-')

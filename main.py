@@ -1,9 +1,11 @@
 import socket
 import sys
-from colorama import Fore,Style
+from colorama import Fore, Style
 import ethernet
 import ipv4
+import ipv6
 import prettifier
+
 # socket_type = 'all'
 # n = len(sys.argv)
 # if(n==2):
@@ -16,43 +18,34 @@ import prettifier
 #         print('UDP packet')
 # else:
 #     print('Default filter: \n')
-# print(Fore.MAGENTA)
 # prettifier.logo()
-# print(Style.RESET_ALL)
-ips = [(s.connect(('8.8.8.8', 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]]
+ips = [
+    (s.connect(("8.8.8.8", 53)), s.getsockname()[0], s.close())
+    for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]
+]
+
 
 def main():
-    conn = socket.socket( socket.AF_PACKET , socket.SOCK_RAW , socket.ntohs(0x0003))
+    conn = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(0x0003))
     while True:
-        raw_data, addr = conn.recvfrom(65536) 
-        #maximum buffer size is 65536
-        '''
-        Getting Ethernet frame and printing it
-        Using the ethertype to choose type of IP
-        '''
+        raw_data, addr = conn.recvfrom(65536)
+        # maximum buffer size is 65536
         dest_mac, src_mac, ethertype, data = ethernet.ethernet_frame(raw_data)
-        # print(dest_mac,ethertype)
         print("\n Ethernet Frame II : ")
-        print("\t Destination MAC adress {}, source MAC Address {}, Protocol : {}".format(dest_mac,src_mac,ethertype))
-        '''
-        IPv4 : 0x0800 - htohs : 8
-        IPv6 : 0x86DD - htohs : 56710
-        ARP : 0x0806
-        '''
+        print(
+            "\t Destination MAC adress {}, source MAC Address {}, Protocol : {}".format(
+                dest_mac, src_mac, ethertype
+            )
+        )
+
         # if IPv4
-        if(ethertype == 8):
-            (version,ttl,proto,src_addr,dest_addr) = ipv4.ipv4_packet(data) 
-            print(Fore.CYAN+"\t IPv4 Packet : " + Style.RESET_ALL)
-            print("\t\t Version : {}, TTL : {}".format(version,ttl))
-            print("\t\t\t Protocol : {}, Source : {}, Destination : {}".format(proto,src_addr,dest_addr))
-            '''
-            TCP : 6
-            UDP : 17
-            ICMP : 1
-            '''
-        # if IPv4
-        elif(ethertype == 56710):
-            print(Fore.CYAN+"/t IPV6 Packet"+Style.RESET_ALL)
-        print('\n\n')
+        if ethertype == 8:
+            ipv4.ipv4_packet(data)
+
+        # if IPv6
+        elif ethertype == 56710:
+            ipv6.ipv6_packet(data)
+        print("\n\n")
+
 
 main()
