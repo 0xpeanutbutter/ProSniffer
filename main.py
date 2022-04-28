@@ -4,7 +4,8 @@ from colorama import Fore, Style
 import ethernet
 import ipv4
 import ipv6
-import prettifier
+import protocol_parser
+import print_style
 
 # socket_type = 'all'
 ipv6_flag = False
@@ -52,14 +53,66 @@ def main():
 
         # if IPv4
         if ethertype == 8 and ipv4_flag:
-            print("\n Ethernet Frame II : ")
-            print(
-                "\t Destination MAC adress {}, source MAC Address {}, Protocol : {}".format(
-                    dest_mac, src_mac, ethertype
-                )
+            version, ttl, header_len, src_ip, dest_ip, proto, data = ipv4.ipv4_packet(
+                data
             )
-            ipv4.ipv4_packet(data)
-            print("\n\n")
+            if proto == 1 and cmd == "IPV4":
+                print("\n Ethernet Frame II : ")
+                print(
+                    "\t Destination MAC adress {}, source MAC Address {}, Protocol : {}".format(
+                        dest_mac, src_mac, ethertype
+                    )
+                )
+                print(Fore.CYAN + "\t IPv4 Packet : " + Style.RESET_ALL)
+                print(
+                    "\t\t Version : {}, TTL : {}, Header Length ".format(
+                        version, ttl, header_len
+                    )
+                )
+                print(
+                    "\t\t\t Protocol : {}, Source : {}, Destination : {}".format(
+                        proto, src_ip, dest_ip
+                    )
+                )
+                protocol_parser.icmp_parser(data)
+            elif proto == 6 and tcp_flag:
+                print("\n Ethernet Frame II : ")
+                print(
+                    "\t Destination MAC adress {}, source MAC Address {}, Protocol : {}".format(
+                        dest_mac, src_mac, ethertype
+                    )
+                )
+                print(Fore.CYAN + "\t IPv4 Packet : " + Style.RESET_ALL)
+                print(
+                    "\t\t Version : {}, TTL : {}, Header Length ".format(
+                        version, ttl, header_len
+                    )
+                )
+                print(
+                    "\t\t\t Protocol : {}, Source : {}, Destination : {}".format(
+                        proto, src_ip, dest_ip
+                    )
+                )
+                protocol_parser.tcp_parser(raw_data)
+            elif proto == 17 and udp_flag:
+                print("\n Ethernet Frame II : ")
+                print(
+                    "\t Destination MAC adress {}, source MAC Address {}, Protocol : {}".format(
+                        dest_mac, src_mac, ethertype
+                    )
+                )
+                print(Fore.CYAN + "\t IPv4 Packet : " + Style.RESET_ALL)
+                print(
+                    "\t\t Version : {}, TTL : {}, Header Length ".format(
+                        version, ttl, header_len
+                    )
+                )
+                print(
+                    "\t\t\t Protocol : {}, Source : {}, Destination : {}".format(
+                        proto, src_ip, dest_ip
+                    )
+                )
+                protocol_parser.udp_parser(data)
 
         # if IPv6
         elif ethertype == 56710 and ipv6_flag:
