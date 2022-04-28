@@ -8,10 +8,14 @@ import protocol_parser
 import print_style
 
 # socket_type = 'all'
-ipv6_flag = False
-ipv4_flag = False
-udp_flag = False
-tcp_flag = False
+ipv6_flag = True
+ipv4_flag = True
+udp_flag = True
+tcp_flag = True
+cmd = ""
+
+print_style.logo()
+
 
 n = len(sys.argv)
 if n == 2:
@@ -23,25 +27,33 @@ if n == 2:
     elif cmd == "TCP":
         ipv4_flag = True
         tcp_flag = True
+        udp_flag = False
+        ipv6_flag = False
         print("TCP filter chosed\n")
     elif cmd == "UDP":
         ipv4_flag = True
         udp_flag = True
+        tcp_flag = False
+        ipv6_flag = False
         print("UDP packet")
     elif cmd == "IPV6":
         ipv6_flag = True
+        ipv4_flag = False
         print("IPV6 packet")
     elif cmd == "IPV4":
         ipv4_flag = True
         udp_flag = True
         tcp_flag = True
+        ipv6_flag = False
         print("IPV4 packet")
 else:
     print("Default filter: \n")
+
 ips = [
     (s.connect(("8.8.8.8", 53)), s.getsockname()[0], s.close())
     for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]
 ]
+ips = list(ips[0])
 
 
 def main():
@@ -56,7 +68,12 @@ def main():
             version, ttl, header_len, src_ip, dest_ip, proto, data = ipv4.ipv4_packet(
                 data
             )
-            if proto == 1 and cmd == "IPV4":
+            if str(src_ip) in ips:
+                print(Fore.RED + "\t\t Outgoing Packet" + Style.RESET_ALL)
+            elif str(dest_ip) in ips:
+                print(Fore.RED + "\t\t Incoming Packet" + Style.RESET_ALL)
+
+            if proto == 1 and (cmd == "IPV4" or n ==1):
                 print("\n Ethernet Frame II : ")
                 print(
                     "\t Destination MAC adress {}, source MAC Address {}, Protocol : {}".format(
@@ -75,6 +92,9 @@ def main():
                     )
                 )
                 protocol_parser.icmp_parser(data)
+                print("\n")
+                print_style.H()
+                print("\n")
             elif proto == 6 and tcp_flag:
                 print("\n Ethernet Frame II : ")
                 print(
@@ -84,7 +104,7 @@ def main():
                 )
                 print(Fore.CYAN + "\t IPv4 Packet : " + Style.RESET_ALL)
                 print(
-                    "\t\t Version : {}, TTL : {}, Header Length ".format(
+                    "\t\t Version : {}, TTL : {}, Header Length:{} ".format(
                         version, ttl, header_len
                     )
                 )
@@ -94,6 +114,9 @@ def main():
                     )
                 )
                 protocol_parser.tcp_parser(raw_data)
+                print("\n")
+                print_style.H()
+                print("\n")
             elif proto == 17 and udp_flag:
                 print("\n Ethernet Frame II : ")
                 print(
@@ -113,6 +136,9 @@ def main():
                     )
                 )
                 protocol_parser.udp_parser(data)
+                print("\n")
+                print_style.H()
+                print("\n")
 
         # if IPv6
         elif ethertype == 56710 and ipv6_flag:
@@ -123,7 +149,9 @@ def main():
                 )
             )
             ipv6.ipv6_packet(data)
-            print("\n\n")
+            print("\n")
+            print_style.H()
+            print("\n")
 
 
 main()

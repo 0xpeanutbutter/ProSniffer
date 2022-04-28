@@ -7,13 +7,7 @@ def tcp_parser(raw_data):
         dest_port,
         seq,
         ack,
-        urg_flag,
-        ack_flag,
-        psh_flag,
-        rst_flag,
-        syn_flag,
-        fin_flag,
-    ) = struct.unpack("! H H L L H H H H H H", raw_data[:24])
+    ) = struct.unpack("! H H L L ", raw_data[:12])
     print("\t TCP Segment : \n")
     print("\t\t Source Port : {}, Destination Port : {}".format(src_port, dest_port))
     print("\t\t Sequence: {}, Acknowledgemnt : {}".format(seq, ack))
