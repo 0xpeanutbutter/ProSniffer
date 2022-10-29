@@ -1,6 +1,3 @@
-#### Computer Security Course Project
-
-
 System Requirements : Unix based systems
 
 command : 
